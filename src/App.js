@@ -10,37 +10,53 @@ const api = {
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [geocode, setGeocode] = useState({});
   const [weather, setWeather] = useState({});
   const [render, setRender] = useState(true);
-  const buttonPressed = () => {
-    // console.log("Button");
-    console.log(search);
 
-    fetch(`${api.base}weather?q=${search}&appid=${api.key}`)
+  const buttonPressed = () => {
+    fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${search}&key=a8e8db5883f242d38f4cc76e3b594ebd`
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        setGeocode(result.results[0]?.geometry);
+        fetchWeatherData(result.results[0]?.geometry);
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const fetchWeatherData = (geometry) => {
+    fetch(
+      `${api.base}weather?lat=${geometry.lat}&lon=${geometry.lng}&units=metric&appid=${api.key}`
+    )
       .then((res) => res.json())
       .then((result) => {
         setWeather(result);
-        console.log("🚀 ~ file: App.js:23 ~ .then ~ result:", result);
         setRender(false);
-      });
-    console.log("🚀 ~ file: App.js:27 ~ .then ~ false:", render);
+      })
+      .catch((error) => console.error(error));
   };
+  
   function Weatherdata() {
     return (
       <>
-        <p className="text-4xl font-bold tracking-tight text-gray-600 sm:text-xl mt-6">{weather.name}</p>
-        <p className="text-4xl font-bold tracking-tight text-gray-600 sm:text-xl mt-6">
-          {weather.main.temp}
-        </p>
-        <p className="text-4xl font-bold tracking-tight text-gray-600 sm:text-xl mt-6">
-          {weather.weather[0].main}
-        </p>
-        <p className="text-4xl font-bold tracking-tight text-gray-600 sm:text-xl mt-6">
-          {weather.weather[0].description}
-        </p>
+        <div className="max-w-md mx-auto bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 shadow-md rounded-md p-4 mt-10">
+          <h2 className="text-2xl font-bold mb-2 text-white">{weather.name}</h2>
+          <p className="text-lg text-white mb-4">
+            Temperature: {weather.main.temp}°C
+          </p>
+          <p className="text-lg text-white mb-4">
+            Weather: {weather.weather[0].main}
+          </p>
+          <p className="text-lg text-white mb-4">
+            Description: {weather.weather[0].description}
+          </p>
+        </div>
       </>
     );
   }
+  
   return (
     <div className="bg-white">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -49,7 +65,7 @@ export default function App() {
           aria-hidden="true"
         >
           <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-purple-400 to-indigo-500 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
             style={{
               clipPath:
                 "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
@@ -89,7 +105,7 @@ export default function App() {
           aria-hidden="true"
         >
           <div
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-400 to-indigo-500 opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
             style={{
               clipPath:
                 "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
@@ -99,4 +115,5 @@ export default function App() {
       </div>
     </div>
   );
+  
 }
