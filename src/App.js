@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Dialog } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import React,{ useState } from "react";
+
 
 const api = {
   key: "cda3f386e741b1e8c36187206ab43cfd",
@@ -8,7 +7,7 @@ const api = {
 };
 
 export default function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const [search, setSearch] = useState("");
   const [geocode, setGeocode] = useState({});
   const [weather, setWeather] = useState({});
