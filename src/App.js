@@ -1,61 +1,73 @@
-import React,{ useState } from "react";
-
-
-const api = {
-  key: "cda3f386e741b1e8c36187206ab43cfd",
-  base: "https://api.openweathermap.org/data/2.5/",
-};
+import React, { useState } from "react";
+import { fetchSuggestions, fetchWeatherData, fetchGeocodeData } from "./api";
 
 export default function App() {
-
   const [search, setSearch] = useState("");
   const [geocode, setGeocode] = useState({});
   const [weather, setWeather] = useState({});
-  const [render, setRender] = useState(true);
+  const [render, setRender] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+
+  const handleInputChange = (e) => {
+    setSearch(e.target.value);
+    if (e.target.value) {
+      fetchSuggestions(e.target.value).then((data) => {
+        setSuggestions(data);
+      });
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSelectSuggestion = (selectedCity) => {
+    setSearch(selectedCity);
+    setSuggestions([]);
+  };
 
   const buttonPressed = () => {
-    fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${search}&key=a8e8db5883f242d38f4cc76e3b594ebd`
-    )
-      .then((res) => res.json())
-      .then((result) => {
-        setGeocode(result.results[0]?.geometry);
-        fetchWeatherData(result.results[0]?.geometry);
-      })
-      .catch((error) => console.error(error));
+    fetchGeocodeData(search).then((geometry) => {
+      setGeocode(geometry);
+      fetchWeatherData(geometry).then((data) => {
+        setWeather(data);
+        setRender(true);
+      });
+    });
   };
 
-  const fetchWeatherData = (geometry) => {
-    fetch(
-      `${api.base}weather?lat=${geometry.lat}&lon=${geometry.lng}&units=metric&appid=${api.key}`
-    )
-      .then((res) => res.json())
-      .then((result) => {
-        setWeather(result);
-        setRender(false);
-      })
-      .catch((error) => console.error(error));
-  };
-  
-  function Weatherdata() {
+  // Render the list of suggestions
+  function Suggestions() {
     return (
-      <>
-        <div className="max-w-md mx-auto bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 shadow-md rounded-md p-4 mt-10">
-          <h2 className="text-2xl font-bold mb-2 text-white">{weather.name}</h2>
-          <p className="text-lg text-white mb-4">
-            Temperature: {weather.main.temp}°C
-          </p>
-          <p className="text-lg text-white mb-4">
-            Weather: {weather.weather[0].main}
-          </p>
-          <p className="text-lg text-white mb-4">
-            Description: {weather.weather[0].description}
-          </p>
-        </div>
-      </>
+      <ul className="block w-full  text-blue-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+        {suggestions.map((suggestion) => (
+          <li
+            key={suggestion.id}
+            className="px-4 py-2 hover:bg-blue-100 hover:text-black cursor-pointer block w-full"
+            onClick={() => handleSelectSuggestion(suggestion.name)}
+          >
+            {suggestion.name}
+          </li>
+        ))}
+      </ul>
     );
   }
-  
+
+  // Render weather data
+  const WeatherData = () => {
+    return (
+      <div className="max-w-md mx-auto bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 shadow-md rounded-md p-4 mt-10">
+        <h2 className="text-2xl font-bold mb-2 text-white">{weather.name}</h2>
+        <p className="text-lg text-white mb-4">
+          Temperature: {weather.main.temp}°C
+        </p>
+        <p className="text-lg text-white mb-4">
+          Weather: {weather.weather[0].main}
+        </p>
+        <p className="text-lg text-white mb-4">
+          Description: {weather.weather[0].description}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="bg-white">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -78,25 +90,29 @@ export default function App() {
               Weather App
             </h1>
             <input
-              type="text"
-              name="price"
-              id="price"
-              className="block w-full rounded-md border-0 mt-12 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              placeholder="Enter City/Town ..."
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          type="text"
+          name="city"
+          id="city"
+          className="block w-full rounded-md border-0 mt-12 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          placeholder="Enter City/Town ..."
+          value={search}
+          onChange={handleInputChange}
+        />
+       {suggestions.length > 0 && (
+              <Suggestions suggestions={suggestions} onSelect={handleSelectSuggestion} />
+            )}
             <div
               className="mt-10 flex items-center justify-center gap-x-6"
               onClick={buttonPressed}
             >
-              <a
-                href="#"
-                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              <button
+                
+                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white hover:text-indigo-600 hover:outline-indigo-600 hover:outline-2  hover:outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 "
               >
                 Get started
-              </a>
+              </button>
             </div>
-            {render ? null : <Weatherdata />}
+            {render ?  <WeatherData /> : null}
           </div>
         </div>
         <div
