@@ -7,6 +7,7 @@ export default function App() {
   const [weather, setWeather] = useState({});
   const [render, setRender] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (e) => {
     setSearch(e.target.value);
@@ -26,11 +27,15 @@ export default function App() {
 
   const buttonPressed = () => {
     fetchGeocodeData(search).then((geometry) => {
-      setGeocode(geometry);
-      fetchWeatherData(geometry).then((data) => {
-        setWeather(data);
-        setRender(true);
-      });
+      if (geometry) {
+        setGeocode(geometry);
+        fetchWeatherData(geometry).then((data) => {
+          setWeather(data);
+          setRender(true);
+        });
+      } else {
+        setErrorMessage("Invalid city. Please provide a correct city.");
+      }
     });
   };
 
@@ -68,6 +73,7 @@ export default function App() {
       </div>
     );
   }
+
   return (
     <div className="bg-white">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -112,7 +118,7 @@ export default function App() {
                 Get started
               </button>
             </div>
-            {render ?  <WeatherData /> : null}
+            {render ?  <WeatherData /> : errorMessage ?errorMessage :null }
           </div>
         </div>
         <div
