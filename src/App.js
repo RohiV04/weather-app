@@ -93,7 +93,7 @@ export default function App() {
           <div className="hidden sm:mb-8 sm:flex sm:justify-center"></div>
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-yellow-400 sm:text-6xl">
-              Weather App Enter City
+              Weather App 
             </h1>
             <input
           type="text"
