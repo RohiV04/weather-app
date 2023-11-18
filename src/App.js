@@ -59,8 +59,8 @@ export default function App() {
   // Render weather data
   const WeatherData = () => {
     return (
-      <div className="max-w-md mx-auto bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 shadow-md rounded-md p-4 mt-10">
-        <h2 className="text-2xl font-bold mb-2 text-white">{weather.name}</h2>
+      <div className="weather-card max-w-md mx-auto bg-gradient-to-r from-blue-300 to-blue-500 shadow-xl rounded-md p-6 mt-10 mb-4 border-2 border-blue-200">
+        <h2 className="text-3xl font-semibold mb-2 text-white">{weather.name}</h2>
         <p className="text-lg text-white mb-4">
           Temperature: {weather.main.temp}°C
         </p>
